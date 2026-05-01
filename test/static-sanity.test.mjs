@@ -66,10 +66,10 @@ test('content script renders a small next-break countdown widget from background
   assert.match(css, /border-radius:\s*999px/);
 });
 
-test('background preserves short focus-away pauses and resets after five minutes away', () => {
+test('background preserves short focus-away pauses and resets after fifteen minutes away', () => {
   const background = readText('background.js');
 
-  assert.match(background, /FOCUS_RESUME_GRACE_MS\s*=\s*5\s*\*\s*60\s*\*\s*1000/);
+  assert.match(background, /FOCUS_RESUME_GRACE_MS\s*=\s*15\s*\*\s*60\s*\*\s*1000/);
   assert.match(background, /focusLostAt/);
   assert.match(background, /handleFocusChanged/);
   assert.match(background, /now\s*-\s*state\.focusLostAt\s*>=\s*FOCUS_RESUME_GRACE_MS/);
@@ -80,6 +80,7 @@ test('popup reports remaining time until the next break while eligible', () => {
   const popup = readText('popup.js');
 
   assert.match(popup, /remainingSeconds/);
+  assert.match(popup, /nextBreakAt/);
   assert.match(popup, /until next break/);
   assert.match(popup, /getActiveTabHint/);
   assert.match(popup, /ignoreFocus/);
@@ -105,7 +106,7 @@ test('README documents unpacked install, restricted pages, implementation summar
   assert.match(readme, /chrome:\/\/ pages/);
   assert.match(readme, /Chrome Web Store/);
   assert.match(readme, /countdown/i);
-  assert.match(readme, /five minutes/i);
+  assert.match(readme, /15 minutes/i);
   assert.match(readme, /Implementation summary/i);
   assert.match(readme, /not run Chrome|Chrome was not run/i);
 });

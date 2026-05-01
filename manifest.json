@@ -5,6 +5,7 @@
   "description": "A cat-powered Chrome break timer that nudges you away from endless browsing.",
   "permissions": [
     "alarms",
+    "scripting",
     "storage",
     "tabs"
   ],

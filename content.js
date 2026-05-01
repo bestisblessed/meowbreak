@@ -1,3 +1,4 @@
+(() => {
 const CAT_VIDEO_URL = chrome.runtime.getURL('assets/meowbreak-pounce.webm');
 const CAT_SLEEP_URL = chrome.runtime.getURL('assets/meowbreak-nap.webm');
 
@@ -60,7 +61,9 @@ function renderNextBreakWidget(state) {
     return;
   }
 
-  const remainingSeconds = Math.max(0, state.remainingSeconds ?? 0);
+  const remainingSeconds = state.nextBreakAt
+    ? Math.max(0, Math.ceil((state.nextBreakAt - Date.now()) / 1000))
+    : Math.max(0, state.remainingSeconds ?? 0);
   if (remainingSeconds <= 0) {
     removeNextBreakWidget();
     return;
@@ -84,6 +87,10 @@ async function refreshNextBreakWidget() {
     return;
   }
   const state = await sendRuntimeMessage({ type: 'GET_STATE' });
+  if (state?.breakActive && state.breakEndsAt && !document.getElementById('meowbreak-overlay')) {
+    showOverlay(state.breakEndsAt);
+    return;
+  }
   renderNextBreakWidget(state);
 }
 
@@ -186,7 +193,9 @@ function showOverlay(breakEndsAt) {
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === 'SHOW_BREAK_OVERLAY') {
-    showOverlay(message.breakEndsAt);
+    if (!document.getElementById('meowbreak-overlay')) {
+      showOverlay(message.breakEndsAt);
+    }
     sendResponse({ shown: true });
     return;
   }
@@ -215,3 +224,4 @@ document.addEventListener('visibilitychange', () => {
 
   refreshNextBreakWidget();
 });
+})();

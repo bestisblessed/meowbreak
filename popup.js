@@ -69,7 +69,9 @@ function renderStatus(state) {
   }
 
   const limitSeconds = state.settings.usageLimit * 60;
-  const remainingSeconds = Math.max(0, state.remainingSeconds ?? (limitSeconds - state.usageSeconds));
+  const remainingSeconds = state.nextBreakAt
+    ? Math.max(0, Math.ceil((state.nextBreakAt - Date.now()) / 1000))
+    : Math.max(0, state.remainingSeconds ?? (limitSeconds - state.usageSeconds));
   statusText.textContent = `${formatSeconds(remainingSeconds)} until next break. ${formatSeconds(state.usageSeconds)} counted.`;
 }
 

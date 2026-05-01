@@ -17,7 +17,7 @@ MeowBreak is a user-owned Manifest V3 extension that counts active Chrome browsi
 - Usage time is browser-wide. A background service worker stores one shared `usageSeconds` value in `chrome.storage.local`, so separate tabs do not run independent countdowns.
 - The counter advances only while Chrome has a focused active eligible tab.
 - Normal eligible websites show a small bottom-right countdown pill with the time remaining until the next break. The pill is removed while the break overlay is active.
-- If Chrome loses focus and is refocused in less than five minutes, the stored `usageSeconds` resumes where it left off. If Chrome is away for five minutes or longer, that away time counts as a real break and usage resets to zero when tracking is reconciled.
+- If Chrome loses focus and is refocused in less than 15 minutes, the stored `usageSeconds` resumes where it left off. If Chrome is away for 15 minutes or longer, that away time counts as a real break and usage resets to zero when tracking is reconciled.
 - When the usage limit is reached, the break overlay is sent to the current active eligible tab. Switching to another eligible tab during the break asks that tab to show the overlay too.
 - The overlay and popup both include a dismiss action so the break is escapable.
 
@@ -32,7 +32,7 @@ Use the extension popup to set:
 ## Implementation summary
 
 - `manifest.json` keeps Manifest V3, adds a background service worker, and broadens matching to `<all_urls>`.
-- `background.js` owns the shared browser-wide timer, watches active tab/window focus changes, stores state in `chrome.storage.local`, applies the five-minute focus resume grace period, and routes break overlay messages.
+- `background.js` owns the shared browser-wide timer, watches active tab/window focus changes, stores state in `chrome.storage.local`, applies the 15-minute focus resume grace period, and routes break overlay messages.
 - `content.js` renders the small next-break countdown pill and the dismissible cat overlay. It does not run a per-tab usage timer.
 - `popup.html` and `popup.js` keep browser-wide limit and break controls, show remaining time until the next break, and remove the original site checkbox list.
 - `assets/` contains the local cat video and icon assets used by the break overlay.

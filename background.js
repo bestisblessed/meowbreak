@@ -93,6 +93,8 @@ function applyElapsedUsage(state, now) {
   if (!state.trackingSince || state.breakEndsAt) return state;
 
   const elapsedSeconds = Math.max(0, Math.floor((now - state.trackingSince) / 1000));
+  if (elapsedSeconds === 0) return state;
+
   return {
     ...state,
     usageSeconds: state.usageSeconds + elapsedSeconds,
@@ -100,11 +102,30 @@ function applyElapsedUsage(state, now) {
   };
 }
 
+function getLiveUsageSeconds(state, now) {
+  if (!state.trackingSince || state.breakEndsAt || state.focusLostAt) {
+    return state.usageSeconds;
+  }
+
+  return state.usageSeconds + Math.max(0, Math.floor((now - state.trackingSince) / 1000));
+}
+
+function getNextBreakAt(state, limitSeconds) {
+  if (!state.trackingSince || state.breakEndsAt || state.focusLostAt) return null;
+  return state.trackingSince + Math.max(0, limitSeconds - state.usageSeconds) * 1000;
+}
+
 async function sendToTab(tabId, message) {
   try {
     await chrome.tabs.sendMessage(tabId, message);
   } catch {
-    // Existing tabs may need a reload before the content script is present.
+    try {
+      await chrome.scripting.insertCSS({ target: { tabId }, files: ['content.css'] });
+      await chrome.scripting.executeScript({ target: { tabId }, files: ['content.js'] });
+      await chrome.tabs.sendMessage(tabId, message);
+    } catch {
+      // Tab is not scriptable (e.g. chrome:// pages)
+    }
   }
 }
 
@@ -233,19 +254,31 @@ async function resetUsageAfterSettingsChange(settings) {
 }
 
 async function getPublicStatus(options = {}) {
-  await reconcileTracking();
+  const preState = await getState();
+
+  if (!preState.breakEndsAt) {
+    await reconcileTracking();
+  }
+
   const state = await getState();
+  const now = Date.now();
   const activeTab = options.activeTabHint || await getActiveTab();
   const focused = await browserHasFocusedWindow();
   const tabEligible = isEligibleTabHint(activeTab);
   const eligible = options.ignoreFocus ? tabEligible : (focused && tabEligible);
+
   const limitSeconds = state.settings.usageLimit * 60;
-  const remainingSeconds = Math.max(0, limitSeconds - state.usageSeconds);
+  const usageSeconds = getLiveUsageSeconds(state, now);
+  const nextBreakAt = getNextBreakAt(state, limitSeconds);
+  const remainingSeconds = nextBreakAt
+    ? Math.max(0, Math.ceil((nextBreakAt - now) / 1000))
+    : Math.max(0, limitSeconds - usageSeconds);
 
   return {
     settings: state.settings,
-    usageSeconds: state.usageSeconds,
+    usageSeconds,
     remainingSeconds,
+    nextBreakAt,
     breakEndsAt: state.breakEndsAt,
     breakActive: !!state.breakEndsAt,
     eligible,
