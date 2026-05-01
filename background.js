@@ -12,7 +12,7 @@ const DEFAULT_STATE = {
 
 const ALARM_NAME = 'meowbreak-tick';
 let popupPort = null;
-const FOCUS_RESUME_GRACE_MS = 5 * 60 * 1000;
+const FOCUS_RESUME_GRACE_MS = 15 * 60 * 1000;
 const RESTRICTED_HOSTS = new Set([
   'chrome.google.com',
   'chromewebstore.google.com'
