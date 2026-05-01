@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      box-sizing: border-box;
+      width: 290px;
+      margin: 0;
+      padding: 16px;
+      background: #171717;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      color: #fff;
+      font-size: 16px;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .section {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #bbb;
+      font-size: 12px;
+    }
+
+    input[type="number"] {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 8px;
+      border: 0;
+      border-radius: 8px;
+      background: #2e2e2e;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      border: 0;
+      border-radius: 8px;
+      background: #ff6b35;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    button:hover {
+      background: #e55a25;
+    }
+
+    #dismissBtn {
+      display: none;
+      margin-bottom: 10px;
+      background: #444;
+    }
+
+    #dismissBtn:hover {
+      background: #555;
+    }
+
+    .status,
+    .saved {
+      min-height: 16px;
+      margin-top: 10px;
+      color: #aaa;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .saved {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>MeowBreak</h1>
+
+  <div class="section">
+    <label for="usageLimit">Browsing limit before break (minutes)</label>
+    <input type="number" id="usageLimit" min="1" max="480" value="60">
+  </div>
+
+  <div class="section">
+    <label for="breakTime">Break duration (minutes)</label>
+    <input type="number" id="breakTime" min="1" max="60" value="5">
+  </div>
+
+  <button id="dismissBtn" type="button">Dismiss current break</button>
+  <button id="saveBtn" type="button">Save settings</button>
+  <div class="status" id="statusText"></div>
+  <div class="saved" id="savedMsg">Saved</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
